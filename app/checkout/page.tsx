@@ -1,7 +1,7 @@
-"use client";
-
-import { useSearchParams } from "next/navigation";
-import { useMemo, useState } from "react";
+// app/checkout/page.tsx
+type Props = {
+  searchParams?: { pid?: string };
+};
 
 const PRODUCTS: Record<string, { name: string; price: number }> = {
   "fishit-a": { name: "Fish It - SECRET TUMBAL", price: 5000 },
@@ -17,48 +17,43 @@ const PRODUCTS: Record<string, { name: string; price: number }> = {
   "bundle-1": { name: "Bundle Fish It Starter", price: 135000 },
 };
 
-function rupiah(n: number) {
-  return new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR" }).format(n);
-}
+export default function CheckoutPage({ searchParams }: Props) {
+  const pid = searchParams?.pid ?? "";
+  const product = PRODUCTS[pid];
 
-export default function CheckoutPage() {
-  const sp = useSearchParams();
-  const pid = sp.get("pid") ?? "";
-
-  const product = useMemo(() => PRODUCTS[pid], [pid]);
-  const [nickname, setNickname] = useState("");
+  if (!product) {
+    return (
+      <main className="min-h-screen flex items-center justify-center bg-black text-white">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold mb-2">Produk tidak ditemukan</h1>
+          <p className="text-gray-400">Cek kembali link /checkout?pid=...</p>
+        </div>
+      </main>
+    );
+  }
 
   return (
-    <main className="min-h-screen bg-black text-white flex items-center justify-center p-6">
-      <div className="w-full max-w-md border border-zinc-700 bg-zinc-950 rounded p-6">
+    <main className="min-h-screen flex items-center justify-center bg-black text-white">
+      <div className="w-full max-w-md rounded-2xl border border-white/10 bg-white/5 p-6">
         <h1 className="text-2xl font-bold mb-2">Checkout</h1>
 
-        <div className="text-sm text-gray-400 mb-4">
-          Produk: <span className="text-white">{product?.name ?? "Tidak ditemukan"}</span>
-          <br />
-          Harga: <span className="text-white">{product ? rupiah(product.price) : "-"}</span>
+        <div className="text-sm text-gray-300 mb-4">
+          <div>Produk: <span className="text-white">{product.name}</span></div>
+          <div>Harga: <span className="text-white">Rp {product.price.toLocaleString("id-ID")}</span></div>
         </div>
 
-        <label className="text-sm block mb-2">
-          Nickname Roblox <span className="text-red-500">*</span>
-        </label>
-
+        <label className="block text-sm mb-2">Nickname Roblox *</label>
         <input
-          className="w-full p-2 rounded text-black"
+          className="w-full rounded-lg bg-black/40 border border-white/10 px-3 py-2 mb-4"
           placeholder="Contoh: Player123"
-          value={nickname}
-          onChange={(e) => setNickname(e.target.value)}
         />
 
-        <button
-          disabled={!nickname.trim() || !product}
-          className="mt-4 w-full bg-white text-black py-2 rounded font-semibold disabled:bg-gray-700 disabled:text-gray-300"
-        >
+        <button className="w-full rounded-lg bg-white text-black py-2 font-semibold">
           Lanjut Pembayaran
         </button>
 
-        <p className="text-xs text-gray-500 mt-3">
-          * Pastikan nickname benar. Pengiriman dilakukan via trade sesuai nickname ini.
+        <p className="text-xs text-gray-400 mt-3">
+          * Pastikan nickname benar. Pengiriman via trade sesuai nickname ini.
         </p>
       </div>
     </main>
